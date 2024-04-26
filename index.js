@@ -22,8 +22,8 @@ app.route('/api/users')
 
     // create user object
     newUser = {
-      username: req.body.username,
-      _id: currentId
+      username: req.body.username.toString(),
+      _id: currentId.toString() // test only takes strings
     };
 
     // push to array
@@ -31,6 +31,10 @@ app.route('/api/users')
 
     // output
     res.json(newUser);
+  })
+  .get(function(req, res) {
+    // output
+    res.send(users);
   });
 
 

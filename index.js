@@ -37,6 +37,13 @@ app.route('/api/users')
     res.send(users);
   });
 
+let log = [];
+
+// exercise endpoint
+app.post('/api/users/:_id/exercises', function(req, res) {
+  // get user from _id
+  
+});
 
 
 const listener = app.listen(process.env.PORT || 3000, () => {

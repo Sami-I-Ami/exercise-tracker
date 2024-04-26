@@ -11,15 +11,31 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 });
 
+let users = []; // pretend this is actually a DB
+let currentId = 0; // pretend this is an acutal key generator
+
 // user endpoint
 app.route('/api/users')
   .post(function(req, res) {
+    // increase id
+    currentId += 1;
+
+    // create user object
+    newUser = {
+      username: req.body.username.toString(),
+      _id: currentId.toString() // test only takes strings
+    };
+
+    // push to array
+    users.push(newUser);
+
     // output
-    res.json({
-      username: "placeholder",
-      _id: "placeholder"
-    })
+    res.json(newUser);
   })
+  .get(function(req, res) {
+    // output
+    res.send(users);
+  });
 
 
 

@@ -62,15 +62,62 @@ app.post('/api/users/:_id/exercises', function (req, res, next) {
   // put into log for later
   const userData = allData.find((user) => user._id == req.params._id);
   if (userData) {
+    userData.count += 1;
     userData.log.push(exerciseData);
   } else {
-    allData.push({...currentUser, log: [exerciseData]})
+    allData.push({...currentUser, count: 1, log: [exerciseData]})
   }
 
   // output
   res.json({...currentUser, ...exerciseData});
 });
 
+// log endpoint
+app.get('/api/users/:_id/logs', function(req, res) {
+  // find user data
+  const userData = allData.find((user) => user._id == req.params._id);
+  if (!userData) {
+    const currentUser = users.find((user) => user._id == req.params._id);
+    return res.json({...currentUser, count: 0, log: []})
+  }
+  
+  // limit by dates if necessary
+  let formattedExerciseLog = userData.log;
+
+  /* if (req.query.from & req.query.to) {
+    const startDate = new Date(req.query.from);
+    const endDate = new Date(req.query.to);
+    formattedExerciseLog = formattedExerciseLog.filter((exercise) => {
+      const exerciseDate = new Date(exercise.date);
+      return exerciseDate >= startDate & exerciseDate <= endDate;
+    });
+  } else if (req.query.from) {
+    const startDate = new Date(req.query.from);
+    formattedExerciseLog = formattedExerciseLog.filter((exercise) => {
+      const exerciseDate = new Date(exercise.date);
+      return exerciseDate >= startDate;
+    });
+  } else if (req.query.to) {
+    const endDate = new Date(req.query.to);
+    formattedExerciseLog = formattedExerciseLog.filter((exercise) => {
+      const exerciseDate = new Date(exercise.date);
+      return exerciseDate <= endDate;
+    });
+  }
+  */
+
+  // limit by count if necessary
+  if (req.query.limit) {
+    formattedExerciseLog = formattedExerciseLog.slice(0, parseInt(req.query.limit));
+  }
+
+  // add formatted logs to rest of data
+  let outputUserData = userData;
+  outputUserData.log = formattedExerciseLog;
+  
+  // output
+  res.json(outputUserData);
+})
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)

@@ -21,12 +21,12 @@ app.route('/api/users')
     currentId += 1;
 
     // create user object
-    newUser = {
+    const newUser = {
       username: req.body.username.toString(),
       _id: currentId.toString() // test only takes strings
     };
 
-    // push to array
+    // push to array for later
     users.push(newUser);
 
     // output
@@ -37,12 +37,38 @@ app.route('/api/users')
     res.send(users);
   });
 
-let log = [];
+let allData = [];
 
 // exercise endpoint
-app.post('/api/users/:_id/exercises', function(req, res) {
+app.post('/api/users/:_id/exercises', function (req, res, next) {
+  // format date
+  if (req.body.date) {
+    req.time = new Date(req.body.date).toDateString();
+  } else {
+    req.time = new Date().toDateString();
+  }
+  next();
+}, function(req, res) {
   // get user from _id
+  const currentUser = users.find((user) => user._id == req.params._id);
   
+  // create exercise object
+  const exerciseData = {
+    description: req.body.description,
+    duration: parseFloat(req.body.duration),
+    date: req.time
+  }
+
+  // put into log for later
+  const userData = allData.find((user) => user._id == req.params._id);
+  if (userData) {
+    userData.log.push(exerciseData);
+  } else {
+    allData.push({...currentUser, log: [exerciseData]})
+  }
+
+  // output
+  res.json({...currentUser, ...exerciseData});
 });
 
 
